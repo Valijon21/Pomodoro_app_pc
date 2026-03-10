@@ -93,13 +93,8 @@ class TimerView(ctk.CTkFrame):
             
             # --- Focus Mode Action ---
             if not self.is_break:
-                try:
-                    import pygetwindow as gw
-                    for win in gw.getAllWindows():
-                        if win.title and win.title != "Pomodoro Pro - Focus & Gamification" and not win.isMinimized:
-                            win.minimize()
-                except Exception:
-                    pass
+                # We removed the aggressive "minimize all" loop here because it incorrectly 
+                # minimized the Pomodoro app itself and disrupted user workflow.
                 self.winfo_toplevel().attributes('-fullscreen', True)
                 self.winfo_toplevel().attributes('-topmost', True)
                 
@@ -215,8 +210,9 @@ class TimerView(ctk.CTkFrame):
                     IsWindowVisible = ctypes.windll.user32.IsWindowVisible
 
                     def close_tab(hwnd, reason=""):
-                        # Restore and bring window to front
-                        ctypes.windll.user32.ShowWindow(hwnd, 9) # SW_RESTORE = 9
+                        # Bring window to front safely without un-maximizing it
+                        if ctypes.windll.user32.IsIconic(hwnd):
+                            ctypes.windll.user32.ShowWindow(hwnd, 9) # SW_RESTORE only if minimized
                         ctypes.windll.user32.SetForegroundWindow(hwnd)
                         
                         # Press Ctrl+W to close the current tab
