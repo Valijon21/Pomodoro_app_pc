@@ -9,7 +9,7 @@
 ## 🚀 Key Features
 
 *   **Customizable Pomodoro Timer**: Tailor your deep work (25 min default), short breaks (5 min), and long breaks (15 min) to your exact workflow.
-*   **Aggressive Focus Blocker**: Enter distraction sites (e.g., `youtube.com`, `instagram`). The app intelligently detects if you open them in *any* browser during a focus session and instantly closes the distraction tab (`Ctrl + W`) to keep you on track.
+*   **Unbreakable Focus Blocker (V3)**: Enter distraction sites (e.g., `youtube.com`, `kun.uz`). The app intelligently scans the active browser's **Address Bar (URL)** using `uiautomation` to instantly close distraction tabs (`Ctrl + W`) regardless of their article or window titles. Seamlessly brings your Pomodoro timer back to Fullscreen.
 *   **Task Management (To-Do)**: Add, edit, prioritize (High/Medium/Low), and tag tasks. Earn Experience Points (XP) and level up as you complete them!
 *   **Multi-Language Support**: Fully localized in **Uzbek (UZ)**, **Russian (RU)**, and **English (EN)**. Change languages on the fly without breaking the layout.
 *   **Auto-Login & Local Database**: Secure local SQLite database (`pomodoro.db`) with password hashing. Enjoy seamless Auto-Login via encrypted session tokens.
@@ -21,7 +21,7 @@
 *   **Language**: Python 3.x
 *   **GUI Framework**: [CustomTkinter](https://github.com/TomSchimansky/CustomTkinter)
 *   **Database**: SQLite3 (Local storage)
-*   **Distraction Blocking**: `pygetwindow`, `ctypes` (Win32 API), `pyautogui`
+*   **Distraction Blocking**: `uiautomation` (Address Bar Scanning), `pygetwindow`, `ctypes` (Win32 API), `pyautogui`
 *   **Data Visualization**: `matplotlib`
 
 ## ⚙️ Installation & Setup
@@ -52,8 +52,8 @@
    ```
 
 ## 🛡️ Distraction Blocker Logic
-The built-in blocker uses an advanced regex-based domain parser to smartly identity websites regardless of how you input them (e.g., `youtube`, `https://www.youtube.com/watch?v=1`, or `instagram.com`). 
-If the blocker is active and it detects the text in an active window title, it leverages the Win32 API to bring the window to the foreground and securely sends a `Ctrl+W` shortcut to terminate the tab immediately. 
+The built-in blocker uses an advanced regex-based domain parser and `uiautomation` to smoothly fetch the active URL from your browser's address bar (Chrome, Edge, Firefox).
+If the blocker is active and the URL matches your blocked sites, it cleanly brings the tab to the foreground and securely sends a `Ctrl+W` shortcut to terminate the tab immediately without disrupting the browser's maximized geometry or the main app.
 
 ## 🧪 Running Tests
 The project includes professional unit testing to ensure robust functionality, specially for the regex domain extractor.
@@ -89,4 +89,6 @@ Pomodoro_app_pc/
 ```
 
 ---
+**Developer**: Valijon Ergashev
+
 *Built with ❤️ for ultimate productivity.*
