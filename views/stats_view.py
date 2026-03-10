@@ -147,7 +147,22 @@ class StatsView(ctk.CTkFrame):
             ctk.CTkLabel(self.pie_frame, text=get_text("pie_no_data"), text_color="gray").pack(expand=True)
             return
             
-        labels = list(tag_data.keys())
+        def trans_tag(t):
+            m = {
+                "General": "tag_general",
+                "Work": "tag_work",
+                "Study": "tag_study",
+                "Sport": "tag_sport",
+                "Personal": "tag_personal",
+                "💼 Ish": "tag_work",
+                "📚 O'qish": "tag_study",
+                "💪 Sport": "tag_sport",
+                "💡 Personal": "tag_personal"
+            }
+            k = m.get(t)
+            return get_text(k) if k else t
+
+        labels = [trans_tag(k) for k in tag_data.keys()]
         sizes = list(tag_data.values())
         colors = ['#03DAC6', '#BB86FC', '#CF6679', '#FFB300', '#4CAF50', '#2196F3']
         

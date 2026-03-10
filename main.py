@@ -114,15 +114,23 @@ class PomodoroApp(ctk.CTk):
         logout_btn.pack(side="right", padx=15, pady=10)
         
         # Theme Selector
-        def change_theme(new_theme):
-            if new_theme == "AMOLED":
+        themes_map = {
+            get_text("theme_system"): "System",
+            get_text("theme_dark"): "Dark",
+            get_text("theme_light"): "Light",
+            get_text("theme_amoled"): "AMOLED"
+        }
+        
+        def change_theme(ui_theme):
+            internal_theme = themes_map.get(ui_theme, "Dark")
+            if internal_theme == "AMOLED":
                 ctk.set_appearance_mode("Dark")
             else:
-                ctk.set_appearance_mode(new_theme)
+                ctk.set_appearance_mode(internal_theme)
                 
-        theme_menu = ctk.CTkOptionMenu(header, values=["System", "Dark", "Light", "AMOLED"], command=change_theme, width=90)
+        theme_menu = ctk.CTkOptionMenu(header, values=list(themes_map.keys()), command=change_theme, width=90)
         theme_menu.pack(side="right", padx=10, pady=10)
-        theme_menu.set("Dark")
+        theme_menu.set(get_text("theme_dark"))
         
         # Content Split Layout with Tabs
         self.tabview = ctk.CTkTabview(self, fg_color="transparent")

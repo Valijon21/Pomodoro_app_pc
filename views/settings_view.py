@@ -102,12 +102,21 @@ class SettingsView(ctk.CTkFrame):
             with open(self.settings_file, "w") as f:
                 json.dump(new_settings, f, indent=4)
                 
-            messagebox.showinfo(get_text("saved_title"), get_text("saved_msg"), parent=self.winfo_toplevel())
-            logger.info("Foydalanuvchi sozlamalari yangilandi.")
-            
             # Update current language in config
             import config
             config.CURRENT_LANGUAGE = self.lang_var.get()
+                
+            messagebox.showinfo(get_text("saved_title"), get_text("saved_msg"), parent=self.winfo_toplevel())
+            logger.info("Foydalanuvchi sozlamalari yangilandi.")
+            
+            # Refresh the UI dynamically so they don't have to restart
+            app = self.winfo_toplevel()
+            if hasattr(app, 'show_main_app'):
+                app.show_main_app()
+                try:
+                    app.tabview.set(get_text("tab_settings"))
+                except Exception:
+                    pass
             
         except ValueError:
             messagebox.showerror(get_text("error"), get_text("error_number"), parent=self.winfo_toplevel())

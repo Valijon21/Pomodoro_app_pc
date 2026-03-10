@@ -60,8 +60,16 @@ class TasksView(ctk.CTkFrame):
         title_label.pack(side="left", padx=(15, 10), pady=12)
         
         # Tag Badge
-        tag = task.get('tag', 'General')
-        ctk.CTkLabel(task_frame, text=f" {tag} ", font=ctk.CTkFont(size=11), fg_color="#333333", text_color="#A0A0A0", corner_radius=4).pack(side="left", padx=5)
+        tag_key = f"tag_{task.get('tag', 'General').lower().split(' ')[-1].replace((chr(128188) + ' '), '').replace((chr(128218) + ' '), '').replace((chr(128170) + ' '), '').replace((chr(128161) + ' '), '').strip()}"
+        if task.get('tag') == '💼 Ish': tag_key = 'tag_work'
+        elif task.get('tag') == "📚 O'qish": tag_key = 'tag_study'
+        elif task.get('tag') == '💪 Sport': tag_key = 'tag_sport'
+        elif task.get('tag') == '💡 Personal': tag_key = 'tag_personal'
+        elif task.get('tag') == 'General': tag_key = 'tag_general'
+        
+        translated_tag = get_text(tag_key) if get_text(tag_key) != tag_key else task.get('tag', 'General')
+        
+        ctk.CTkLabel(task_frame, text=f" {translated_tag} ", font=ctk.CTkFont(size=11), fg_color="#333333", text_color="#A0A0A0", corner_radius=4).pack(side="left", padx=5)
         
         # Info Badges
         pomo_label = ctk.CTkLabel(task_frame, text=f"🍅 {task['pomodoro_count']}", font=ctk.CTkFont(size=12, weight="bold"))
@@ -98,19 +106,29 @@ class TasksView(ctk.CTkFrame):
         pri_frame = ctk.CTkFrame(dialog, fg_color="transparent")
         pri_frame.pack()
         
-        ctk.CTkRadioButton(pri_frame, text="High", variable=priority_var, value="High").pack(side="left", padx=10)
-        ctk.CTkRadioButton(pri_frame, text="Medium", variable=priority_var, value="Medium").pack(side="left", padx=10)
-        ctk.CTkRadioButton(pri_frame, text="Low", variable=priority_var, value="Low").pack(side="left", padx=10)
+        ctk.CTkRadioButton(pri_frame, text=get_text("pri_high"), variable=priority_var, value="High").pack(side="left", padx=10)
+        ctk.CTkRadioButton(pri_frame, text=get_text("pri_medium"), variable=priority_var, value="Medium").pack(side="left", padx=10)
+        ctk.CTkRadioButton(pri_frame, text=get_text("pri_low"), variable=priority_var, value="Low").pack(side="left", padx=10)
         
         ctk.CTkLabel(dialog, text=get_text("tag"), font=ctk.CTkFont(weight="bold")).pack(pady=(15, 5))
-        tag_var = ctk.StringVar(value="General")
-        tags = ["General", "💼 Ish", "📚 O'qish", "💪 Sport", "💡 Personal"]
-        ctk.CTkOptionMenu(dialog, variable=tag_var, values=tags, width=300).pack(pady=5)
+        # Keep internal values English to avoid DB sync issues, only display translated
+        # But CTkOptionMenu uses the same string for display and value.
+        # We'll map UI values to internal tags before saving.
+        tags_map = {
+            get_text("tag_general"): "General",
+            get_text("tag_work"): "Work",
+            get_text("tag_study"): "Study",
+            get_text("tag_sport"): "Sport",
+            get_text("tag_personal"): "Personal"
+        }
+        tag_var = ctk.StringVar(value=get_text("tag_general"))
+        ctk.CTkOptionMenu(dialog, variable=tag_var, values=list(tags_map.keys()), width=300).pack(pady=5)
         
         def save_task():
             title = title_entry.get().strip()
             prior = priority_var.get()
-            tag = tag_var.get()
+            ui_tag = tag_var.get()
+            tag = tags_map.get(ui_tag, "General")
             if not title:
                 messagebox.showwarning(get_text("error"), get_text("error_name"), parent=dialog)
                 return

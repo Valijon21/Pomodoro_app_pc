@@ -81,7 +81,19 @@
         "tag_distribution": "Loyiha/Tag taqsimoti",
         "export_empty": "Eksport qilish uchun hali hech qanday sessiya ma'lumoti yo'q.",
         "export_success": "Sessiyalar muvaffaqiyatli saqlandi!",
-        "export_error": "Eksportda xatolik yuz berdi:"
+        "export_error": "Eksportda xatolik yuz berdi:",
+        "pri_high": "Yuqori",
+        "pri_medium": "O'rta",
+        "pri_low": "Past",
+        "tag_general": "Umumiy",
+        "tag_work": "💼 Ish",
+        "tag_study": "📚 O'qish",
+        "tag_sport": "💪 Sport",
+        "tag_personal": "💡 Shaxsiy",
+        "theme_system": "Tizim",
+        "theme_dark": "Qorong'u",
+        "theme_light": "Yorug'",
+        "theme_amoled": "AMOLED"
     },
     "ru": {
         "login_title": "🍅 Pomodoro Pro",
@@ -165,7 +177,19 @@
         "tag_distribution": "Распределение проектов/тегов",
         "export_empty": "Нет сессий для экспорта.",
         "export_success": "Сессии успешно сохранены!",
-        "export_error": "Ошибка при экспорте:"
+        "export_error": "Ошибка при экспорте:",
+        "pri_high": "Высокий",
+        "pri_medium": "Средний",
+        "pri_low": "Низкий",
+        "tag_general": "Общее",
+        "tag_work": "💼 Работа",
+        "tag_study": "📚 Учеба",
+        "tag_sport": "💪 Спорт",
+        "tag_personal": "💡 Личное",
+        "theme_system": "Система",
+        "theme_dark": "Темная",
+        "theme_light": "Светлая",
+        "theme_amoled": "AMOLED"
     },
     "en": {
         "login_title": "🍅 Pomodoro Pro",
@@ -249,6 +273,18 @@
         "tag_distribution": "Project/Tag Distribution",
         "export_empty": "No sessions data to export yet.",
         "export_success": "Sessions exported successfully!",
-        "export_error": "Error during export:"
+        "export_error": "Error during export:",
+        "pri_high": "High",
+        "pri_medium": "Medium",
+        "pri_low": "Low",
+        "tag_general": "General",
+        "tag_work": "💼 Work",
+        "tag_study": "📚 Study",
+        "tag_sport": "💪 Sport",
+        "tag_personal": "💡 Personal",
+        "theme_system": "System",
+        "theme_dark": "Dark",
+        "theme_light": "Light",
+        "theme_amoled": "AMOLED"
     }
 }
