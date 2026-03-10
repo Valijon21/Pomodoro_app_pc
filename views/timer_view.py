@@ -203,6 +203,7 @@ class TimerView(ctk.CTkFrame):
             try:
                 import ctypes
                 import controllers.blocker as blocker
+                import uiautomation as auto
                 
                 keywords = blocker.extract_keywords(blocked_sites)
                 
@@ -213,6 +214,25 @@ class TimerView(ctk.CTkFrame):
                     GetWindowTextLength = ctypes.windll.user32.GetWindowTextLengthW
                     IsWindowVisible = ctypes.windll.user32.IsWindowVisible
 
+                    def close_tab(hwnd, reason=""):
+                        # Restore and bring window to front
+                        ctypes.windll.user32.ShowWindow(hwnd, 9) # SW_RESTORE = 9
+                        ctypes.windll.user32.SetForegroundWindow(hwnd)
+                        
+                        # Press Ctrl+W to close the current tab
+                        import pyautogui
+                        import time
+                        time.sleep(0.1) # Kichik tanaffus oyna oldinga chiqishi uchun
+                        pyautogui.hotkey('ctrl', 'w')
+                        logger.info(f"Ctrl+W yuborildi: {reason} yopilmoqda...")
+                        
+                        # Bring Pomodoro window back to front
+                        main_win = self.winfo_toplevel()
+                        if main_win.state() == 'iconic':
+                            main_win.deiconify()
+                        main_win.attributes('-topmost', True)
+                        main_win.lift()
+
                     def foreach_window(hwnd, lParam):
                         if IsWindowVisible(hwnd):
                             length = GetWindowTextLength(hwnd)
@@ -221,34 +241,39 @@ class TimerView(ctk.CTkFrame):
                                 GetWindowText(hwnd, buff, length + 1)
                                 title_lower = buff.value.lower()
                                 
+                                # Fast check: Is keyword in Window Title?
+                                blocked = False
                                 for kw in keywords:
                                     if kw in title_lower:
-                                        # Blocked site detected!
-                                        logger.info(f"Bloklangan sayt aniqlandi: {title_lower} (mos keldi: {kw})")
+                                        logger.info(f"Bloklangan sayt aniqlandi (title): {title_lower} (mos keldi: {kw})")
+                                        close_tab(hwnd, f"'{title_lower}' sarlavhasi")
+                                        blocked = True
+                                        break
                                         
-                                        # Restore and bring window to front
-                                        ctypes.windll.user32.ShowWindow(hwnd, 9) # SW_RESTORE = 9
-                                        ctypes.windll.user32.SetForegroundWindow(hwnd)
-                                        
-                                        # Press Ctrl+W to close the current tab
-                                        import pyautogui
-                                        import time
-                                        time.sleep(0.1) # Kichik tanaffus oyna oldinga chiqishi uchun
-                                        pyautogui.hotkey('ctrl', 'w')
-                                        logger.info(f"Ctrl+W yuborildi: '{title_lower}' yopilmoqda...")
-                                        
-                                        # Bring Pomodoro window back to front
-                                        main_win = self.winfo_toplevel()
-                                        if main_win.state() == 'iconic':
-                                            main_win.deiconify()
-                                        main_win.attributes('-topmost', True)
-                                        main_win.lift()
-                                        break # Stop checking keywords for this window
+                                # Deep check: If it's a browser, check address bar URL via UIAutomation
+                                if not blocked and any(b in title_lower for b in ['chrome', 'edge', 'firefox', 'brave', 'yandex']):
+                                    try:
+                                        win = auto.WindowControl(Name=buff.value, searchDepth=1)
+                                        if win.Exists(0, 0):
+                                            edit = win.EditControl()
+                                            if edit.Exists(0, 0):
+                                                url = edit.GetValuePattern().Value.lower()
+                                                for kw in keywords:
+                                                    if kw in url:
+                                                        logger.info(f"Bloklangan sayt aniqlandi (URL): {url} oynada: {title_lower} (mos keldi: {kw})")
+                                                        close_tab(hwnd, f"URL '{url}'")
+                                                        blocked = True
+                                                        break
+                                    except Exception as e:
+                                        pass
+                                
+                                if blocked:
+                                    return False # Stop enum
                         return True
                         
                     EnumWindows(EnumWindowsProc(foreach_window), 0)
             except Exception as e:
-                logger.error(f"Oyna sarlavhasini tekshirishda xato (ctypes): {e}")
+                logger.error(f"Oynani tekshirishda xato: {e}")
                 
         # Schedule the next check
         if self.is_running and not self.is_break:

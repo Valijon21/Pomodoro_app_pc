@@ -4,3 +4,5 @@ tkcalendar
 pygetwindow
 python-dotenv
 win10toast
+uiautomation
+pyautogui
