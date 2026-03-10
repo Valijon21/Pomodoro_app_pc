@@ -1,0 +1,6 @@
+customtkinter
+matplotlib
+tkcalendar
+pygetwindow
+python-dotenv
+win10toast

@@ -1,0 +1,10 @@
+venv/
+__pycache__/
+*.pyc
+.env
+data/pomodoro.db
+data/session.json
+pomodoro.log
+.DS_Store
+.vscode/
+.idea/
