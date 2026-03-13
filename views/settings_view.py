@@ -2,7 +2,7 @@ import customtkinter as ctk
 import json
 import os
 from tkinter import messagebox
-from config import DATA_DIR, logger, get_text
+from config import DATA_DIR, logger, get_text, FONT_SIZE
 
 class SettingsView(ctk.CTkFrame):
     def __init__(self, master):
@@ -26,10 +26,19 @@ class SettingsView(ctk.CTkFrame):
         self.short_break_var = ctk.StringVar(value=str(self.settings.get("short_break", 5)))
         self.long_break_var = ctk.StringVar(value=str(self.settings.get("long_break", 15)))
         self.cycles_var = ctk.StringVar(value=str(self.settings.get("cycles_before_long_break", 4)))
+        self.font_size_var = ctk.IntVar(value=self.settings.get("font_size", 14))
+        
         self.create_input(self.form_frame, 0, get_text("work_time"), self.work_time_var)
         self.create_input(self.form_frame, 1, get_text("short_break"), self.short_break_var)
         self.create_input(self.form_frame, 2, get_text("long_break"), self.long_break_var)
         self.create_input(self.form_frame, 3, get_text("cycles"), self.cycles_var)
+        
+        # Font Size Slider
+        ctk.CTkLabel(self.form_frame, text=get_text("font_size_label"), font=ctk.CTkFont(weight="bold")).grid(row=4, column=0, sticky="w", pady=10, padx=10)
+        self.font_slider = ctk.CTkSlider(self.form_frame, from_=10, to=24, number_of_steps=14, variable=self.font_size_var)
+        self.font_slider.grid(row=4, column=1, sticky="w", pady=10, padx=10)
+        self.font_size_label_val = ctk.CTkLabel(self.form_frame, textvariable=self.font_size_var)
+        self.font_size_label_val.grid(row=4, column=1, sticky="e", padx=(0, 0))
         
         # Toggles
         self.sound_var = ctk.BooleanVar(value=self.settings.get("sound", True))
@@ -37,34 +46,34 @@ class SettingsView(ctk.CTkFrame):
         self.lofi_var = ctk.BooleanVar(value=self.settings.get("play_lofi", False))
         
         self.sound_switch = ctk.CTkSwitch(self.form_frame, text=get_text("sound"), variable=self.sound_var)
-        self.sound_switch.grid(row=4, column=0, pady=15, sticky="w")
+        self.sound_switch.grid(row=5, column=0, pady=15, sticky="w")
         
-        self.auto_break_switch = ctk.CTkSwitch(self.form_frame, text=get_text("auto_break"), variable=self.auto_break_var)
-        self.auto_break_switch.grid(row=5, column=0, pady=5, sticky="w")
+        self.auto_break_switch = ctk.CTkSwitch(self.form_frame, text=get_text("auto_break"), variable=self.auto_break_var, font=ctk.CTkFont(size=FONT_SIZE))
+        self.auto_break_switch.grid(row=6, column=0, pady=10, sticky="w")
         
-        self.lofi_switch = ctk.CTkSwitch(self.form_frame, text=get_text("lofi"), variable=self.lofi_var)
-        self.lofi_switch.grid(row=4, column=1, pady=15, padx=20, sticky="w")
+        self.lofi_switch = ctk.CTkSwitch(self.form_frame, text=get_text("lofi"), variable=self.lofi_var, font=ctk.CTkFont(size=FONT_SIZE))
+        self.lofi_switch.grid(row=6, column=1, pady=10, padx=20, sticky="w")
         
         # Blocked Sites Input
-        ctk.CTkLabel(self.form_frame, text=get_text("blocked_sites_label"), font=ctk.CTkFont(weight="bold")).grid(row=6, column=0, columnspan=2, pady=(20, 5), sticky="w")
+        ctk.CTkLabel(self.form_frame, text=get_text("blocked_sites_label"), font=ctk.CTkFont(size=FONT_SIZE, weight="bold")).grid(row=7, column=0, columnspan=2, pady=(20, 5), sticky="w")
         self.blocked_sites_var = ctk.StringVar(value=self.settings.get("blocked_sites", "youtube.com, instagram.com, tiktok.com"))
-        self.blocked_sites_entry = ctk.CTkEntry(self.form_frame, textvariable=self.blocked_sites_var, width=400)
-        self.blocked_sites_entry.grid(row=7, column=0, columnspan=2, pady=5, sticky="w", ipadx=5)
+        self.blocked_sites_entry = ctk.CTkEntry(self.form_frame, textvariable=self.blocked_sites_var, width=400, font=ctk.CTkFont(size=FONT_SIZE))
+        self.blocked_sites_entry.grid(row=8, column=0, columnspan=2, pady=5, sticky="w", ipadx=5)
         
         # Language Selector
-        ctk.CTkLabel(self.form_frame, text=get_text("language_label"), font=ctk.CTkFont(weight="bold")).grid(row=8, column=0, pady=(20, 5), sticky="w")
+        ctk.CTkLabel(self.form_frame, text=get_text("language_label"), font=ctk.CTkFont(size=FONT_SIZE, weight="bold")).grid(row=9, column=0, pady=(20, 5), sticky="w")
         self.lang_var = ctk.StringVar(value=self.settings.get("language", "uz"))
-        self.lang_menu = ctk.CTkOptionMenu(self.form_frame, variable=self.lang_var, values=["uz", "ru", "en"], width=100)
-        self.lang_menu.grid(row=8, column=1, pady=(20, 5), sticky="w")
+        self.lang_menu = ctk.CTkOptionMenu(self.form_frame, variable=self.lang_var, values=["uz", "ru", "en"], width=100, font=ctk.CTkFont(size=FONT_SIZE))
+        self.lang_menu.grid(row=9, column=1, pady=(20, 5), sticky="w")
         
         # Save Button
-        self.save_btn = ctk.CTkButton(self.form_frame, text=get_text("save_btn"), font=ctk.CTkFont(weight="bold"), fg_color="#03DAC6", text_color="black", hover_color="#018786", command=self.save_settings)
-        self.save_btn.grid(row=9, column=0, columnspan=2, pady=30, ipadx=20, ipady=5)
+        self.save_btn = ctk.CTkButton(self.form_frame, text=get_text("save_btn"), font=ctk.CTkFont(size=FONT_SIZE, weight="bold"), fg_color="#03DAC6", text_color="black", hover_color="#018786", command=self.save_settings)
+        self.save_btn.grid(row=10, column=0, columnspan=2, pady=40, ipadx=30, ipady=8)
 
     def create_input(self, parent, row, label_text, var):
-        ctk.CTkLabel(parent, text=label_text, font=ctk.CTkFont(weight="bold")).grid(row=row, column=0, sticky="w", pady=10, padx=10)
-        entry = ctk.CTkEntry(parent, textvariable=var, width=80)
-        entry.grid(row=row, column=1, sticky="e", pady=10, padx=10)
+        ctk.CTkLabel(parent, text=label_text, font=ctk.CTkFont(size=FONT_SIZE, weight="bold")).grid(row=row, column=0, sticky="w", pady=15, padx=10)
+        entry = ctk.CTkEntry(parent, textvariable=var, width=100, font=ctk.CTkFont(size=FONT_SIZE))
+        entry.grid(row=row, column=1, sticky="e", pady=15, padx=10)
 
     def load_settings(self):
         try:
@@ -83,7 +92,8 @@ class SettingsView(ctk.CTkFrame):
             "auto_start_break": False,
             "play_lofi": False,
             "blocked_sites": "youtube.com, instagram.com, tiktok.com, facebook.com",
-            "language": "uz"
+            "language": "uz",
+            "font_size": 14
         }
 
     def save_settings(self):
@@ -97,14 +107,16 @@ class SettingsView(ctk.CTkFrame):
                 "auto_start_break": self.auto_break_var.get(),
                 "play_lofi": self.lofi_var.get(),
                 "blocked_sites": self.blocked_sites_var.get(),
-                "language": self.lang_var.get()
+                "language": self.lang_var.get(),
+                "font_size": int(self.font_size_var.get())
             }
             with open(self.settings_file, "w") as f:
                 json.dump(new_settings, f, indent=4)
                 
-            # Update current language in config
+            # Update current language and font size in config
             import config
             config.CURRENT_LANGUAGE = self.lang_var.get()
+            config.FONT_SIZE = int(self.font_size_var.get())
                 
             messagebox.showinfo(get_text("saved_title"), get_text("saved_msg"), parent=self.winfo_toplevel())
             logger.info("Foydalanuvchi sozlamalari yangilandi.")

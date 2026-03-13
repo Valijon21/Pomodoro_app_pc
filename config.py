@@ -16,16 +16,18 @@ TRANSLATIONS_PATH = os.path.join(DATA_DIR, 'translations.json')
 
 import json
 CURRENT_LANGUAGE = "uz"
+FONT_SIZE = 14
 translations = {}
 
 def init_language():
-    global CURRENT_LANGUAGE, translations
+    global CURRENT_LANGUAGE, translations, FONT_SIZE
     settings_file = os.path.join(DATA_DIR, 'settings.json')
     if os.path.exists(settings_file):
         try:
             with open(settings_file, "r", encoding="utf-8") as f:
                 settings = json.load(f)
                 CURRENT_LANGUAGE = settings.get("language", "uz")
+                FONT_SIZE = settings.get("font_size", 14)
         except Exception:
             pass
             

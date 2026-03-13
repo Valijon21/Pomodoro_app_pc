@@ -1,7 +1,7 @@
 import customtkinter as ctk
 import os
 import json
-from config import DATA_DIR, logger, get_text
+from config import DATA_DIR, logger, get_text, FONT_SIZE
 import controllers.blocker as blocker
 import controllers.audio_player as audio
 
@@ -27,27 +27,27 @@ class TimerView(ctk.CTkFrame):
         self.grid_rowconfigure(5, weight=1)
         self.grid_columnconfigure(0, weight=1)
         
-        self.header_label = ctk.CTkLabel(self, text=get_text("focus_time"), font=ctk.CTkFont(size=24, weight="bold"))
+        self.header_label = ctk.CTkLabel(self, text=get_text("focus_time"), font=ctk.CTkFont(size=FONT_SIZE + 10, weight="bold"))
         self.header_label.grid(row=0, column=0, pady=(20, 10))
         
-        self.task_label = ctk.CTkLabel(self, text=get_text("no_task_selected"), font=ctk.CTkFont(size=16), text_color="gray")
+        self.task_label = ctk.CTkLabel(self, text=get_text("no_task_selected"), font=ctk.CTkFont(size=FONT_SIZE + 2), text_color="gray")
         self.task_label.grid(row=1, column=0, pady=(0, 20))
         
         mins, secs = divmod(self.time_left, 60)
-        self.time_display = ctk.CTkLabel(self, text=f"{mins:02d}:{secs:02d}", font=ctk.CTkFont(size=80, weight="bold", family="Courier"))
+        self.time_display = ctk.CTkLabel(self, text=f"{mins:02d}:{secs:02d}", font=ctk.CTkFont(size=80, weight="bold"))
         self.time_display.grid(row=2, column=0, pady=10)
         
         # Buttons
         self.btn_frame = ctk.CTkFrame(self, fg_color="transparent")
         self.btn_frame.grid(row=3, column=0, pady=20)
         
-        self.start_btn = ctk.CTkButton(self.btn_frame, text=get_text("start"), font=ctk.CTkFont(size=16, weight="bold"), width=100, height=40, command=self.toggle_timer)
+        self.start_btn = ctk.CTkButton(self.btn_frame, text=get_text("start"), font=ctk.CTkFont(size=FONT_SIZE + 2, weight="bold"), width=100, height=40, command=self.toggle_timer)
         self.start_btn.grid(row=0, column=0, padx=5)
         
-        self.reset_btn = ctk.CTkButton(self.btn_frame, text=get_text("reset"), font=ctk.CTkFont(size=16), width=100, height=40, fg_color="gray", hover_color="darkgray", command=self.reset_timer)
+        self.reset_btn = ctk.CTkButton(self.btn_frame, text=get_text("reset"), font=ctk.CTkFont(size=FONT_SIZE + 2), width=100, height=40, fg_color="gray", hover_color="darkgray", command=self.reset_timer)
         self.reset_btn.grid(row=0, column=1, padx=5)
         
-        self.widget_btn = ctk.CTkButton(self.btn_frame, text=get_text("widget"), font=ctk.CTkFont(size=16), width=80, height=40, fg_color="#333333", hover_color="#555555", command=self.open_mini_widget)
+        self.widget_btn = ctk.CTkButton(self.btn_frame, text=get_text("widget"), font=ctk.CTkFont(size=FONT_SIZE + 2), width=80, height=40, fg_color="#333333", hover_color="#555555", command=self.open_mini_widget)
         self.widget_btn.grid(row=0, column=2, padx=5)
         
         # Modes
@@ -63,9 +63,43 @@ class TimerView(ctk.CTkFrame):
         self.long_break_btn = ctk.CTkButton(self.mode_frame, text=get_text("long_break_mode"), width=100, fg_color="transparent", border_width=1, command=lambda: self.set_mode('long', True))
         self.long_break_btn.grid(row=0, column=2, padx=5)
         
-        # Cycle info
-        self.cycle_label = ctk.CTkLabel(self, text=f"{get_text('current_cycles')} {self.pomodoro_cycle_count} / {self.settings['cycles_before_long_break']}", text_color="gray", font=ctk.CTkFont(size=12))
-        self.cycle_label.grid(row=5, column=0, pady=5)
+        # Cycle info and Music toggle
+        self.info_frame = ctk.CTkFrame(self, fg_color="transparent")
+        self.info_frame.grid(row=5, column=0, pady=5)
+        
+        self.cycle_label = ctk.CTkLabel(self.info_frame, text=f"{get_text('current_cycles')} {self.pomodoro_cycle_count} / {self.settings['cycles_before_long_break']}", text_color="gray", font=ctk.CTkFont(size=FONT_SIZE - 2))
+        self.cycle_label.pack(side="left", padx=10)
+        
+        self.lofi_var = ctk.BooleanVar(value=self.settings.get("play_lofi", False))
+        self.lofi_dash_switch = ctk.CTkSwitch(self.info_frame, text=get_text("lofi"), variable=self.lofi_var, font=ctk.CTkFont(size=FONT_SIZE - 2), command=self.on_dash_lofi_toggle)
+        self.lofi_dash_switch.pack(side="left", padx=10)
+        
+    def on_dash_lofi_toggle(self):
+        val = self.lofi_var.get()
+        logger.info(f"Dashboard: Musiqa holati o'zgardi: {val}")
+        
+        # Update settings.json immediately
+        settings_file = os.path.join(DATA_DIR, 'settings.json')
+        if os.path.exists(settings_file):
+            try:
+                with open(settings_file, "r") as f:
+                    data = json.load(f)
+                data["play_lofi"] = val
+                with open(settings_file, "w") as f:
+                    json.dump(data, f, indent=4)
+            except Exception as e:
+                logger.error(f"Dashboard settings update fail: {e}")
+        
+        # Immediate audio action if running
+        if self.is_running and not self.is_break:
+            if val:
+                audio.play_lofi()
+            else:
+                audio.stop_lofi()
+        elif not self.is_running:
+            # Just stop music if user turns it off while idle
+            if not val:
+                audio.stop_lofi()
         
     def load_settings(self):
         settings_file = os.path.join(DATA_DIR, 'settings.json')
@@ -89,6 +123,7 @@ class TimerView(ctk.CTkFrame):
         if not self.is_running:
             self.settings = self.load_settings()
             self.is_running = True
+            logger.info(f"Taymer ishga tushirildi. Rejim: {'Break' if self.is_break else 'Work'}, Vaqt: {self.time_left}s")
             self.start_btn.configure(text=get_text("pause"), fg_color="#CF6679", hover_color="#B00020")
             
             # --- Focus Mode Action ---
@@ -302,37 +337,37 @@ class TimerView(ctk.CTkFrame):
         
         self.cycle_label.configure(text=f"{get_text('current_cycles')} {self.pomodoro_cycle_count} / {self.settings['cycles_before_long_break']}")
 
-    def set_mode(self, mode_name, is_break):
+    def set_mode(self, mode, is_break):
+        logger.info(f"Taymer rejimi almashtirildi: {mode}, is_break: {is_break}")
+        self.reset_timer() # reset_timer already cancels current timer and resets UI
         self.settings = self.load_settings()
         self.is_break = is_break
         
-        if mode_name == 'work':
+        if mode == 'work':
             minutes = self.settings["work_time"]
-        elif mode_name == 'short':
+        elif mode == 'short':
             minutes = self.settings["short_break"]
         else:
             minutes = self.settings["long_break"]
             
         self.time_left = minutes * 60
-        self.reset_timer()
-        self.time_left = minutes * 60 # Fix reset override
         mins, secs = divmod(self.time_left, 60)
         self.time_display.configure(text=f"{mins:02d}:{secs:02d}")
         
         # UI updates for buttons
         primary_color = "#BB86FC" if ctk.get_appearance_mode()=="Dark" else "#6200EE"
         
-        if mode_name == 'work':
+        if mode == 'work':
             self.header_label.configure(text=get_text("focus_time"))
             self.pomodoro_btn.configure(fg_color=primary_color, border_width=0)
             self.short_break_btn.configure(fg_color="transparent", border_width=1)
             self.long_break_btn.configure(fg_color="transparent", border_width=1)
-        elif mode_name == 'short':
+        elif mode == 'short':
             self.header_label.configure(text=get_text("short_break_mode"))
             self.pomodoro_btn.configure(fg_color="transparent", border_width=1)
             self.short_break_btn.configure(fg_color=primary_color, border_width=0)
             self.long_break_btn.configure(fg_color="transparent", border_width=1)
-        elif mode_name == 'long':
+        elif mode == 'long':
             self.header_label.configure(text=get_text("long_break_mode"))
             self.pomodoro_btn.configure(fg_color="transparent", border_width=1)
             self.short_break_btn.configure(fg_color="transparent", border_width=1)

@@ -23,16 +23,17 @@ class LoginView(ctk.CTkFrame):
         self.input_frame = ctk.CTkFrame(self, fg_color="transparent")
         self.input_frame.grid(row=2, column=0, sticky="n")
         
-        self.username_entry = ctk.CTkEntry(self.input_frame, placeholder_text=get_text("username_placeholder"), width=300, height=45, font=ctk.CTkFont(size=14))
+        from config import FONT_SIZE
+        self.username_entry = ctk.CTkEntry(self.input_frame, placeholder_text=get_text("username_placeholder"), width=300, height=45, font=ctk.CTkFont(size=FONT_SIZE))
         self.username_entry.pack(pady=(0, 15))
         
-        self.password_entry = ctk.CTkEntry(self.input_frame, placeholder_text=get_text("password_placeholder"), show="*", width=300, height=45, font=ctk.CTkFont(size=14))
+        self.password_entry = ctk.CTkEntry(self.input_frame, placeholder_text=get_text("password_placeholder"), show="*", width=300, height=45, font=ctk.CTkFont(size=FONT_SIZE))
         self.password_entry.pack(pady=(0, 20))
         
-        self.login_btn = ctk.CTkButton(self.input_frame, text=get_text("login_btn"), width=300, height=45, font=ctk.CTkFont(size=16, weight="bold"), command=self.handle_login)
+        self.login_btn = ctk.CTkButton(self.input_frame, text=get_text("login_btn"), width=300, height=45, font=ctk.CTkFont(size=FONT_SIZE + 2, weight="bold"), command=self.handle_login)
         self.login_btn.pack(pady=(0, 10))
         
-        self.info_label = ctk.CTkLabel(self.input_frame, text=get_text("login_info"), text_color="gray", font=ctk.CTkFont(size=11))
+        self.info_label = ctk.CTkLabel(self.input_frame, text=get_text("login_info"), text_color="gray", font=ctk.CTkFont(size=FONT_SIZE - 3))
         self.info_label.pack()
 
     def handle_login(self):

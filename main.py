@@ -101,7 +101,8 @@ class PomodoroApp(ctk.CTk):
         header.pack(fill="x", padx=20, pady=(20, 10))
         
         user_info = f"👤 {self.current_user['username']}  |  🏆 {get_text('level')}: {self.current_user['level']}  |  ⚡ {get_text('xp')}: {self.current_user['xp']}"
-        ctk.CTkLabel(header, text=user_info, font=ctk.CTkFont(size=16, weight="bold")).pack(side="left", padx=20, pady=10)
+        from config import FONT_SIZE
+        ctk.CTkLabel(header, text=user_info, font=ctk.CTkFont(size=FONT_SIZE + 2, weight="bold")).pack(side="left", padx=20, pady=10)
         
         def do_logout():
             from database import clear_session

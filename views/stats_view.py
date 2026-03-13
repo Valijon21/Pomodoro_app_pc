@@ -19,7 +19,8 @@ class StatsView(ctk.CTkFrame):
         self.grid_columnconfigure(0, weight=1)
         
         # Header
-        self.header_label = ctk.CTkLabel(self, text=get_text("analytics_title"), font=ctk.CTkFont(size=24, weight="bold"))
+        from config import FONT_SIZE
+        self.header_label = ctk.CTkLabel(self, text=get_text("analytics_title"), font=ctk.CTkFont(size=FONT_SIZE + 10, weight="bold"))
         self.header_label.grid(row=0, column=0, pady=(20, 10))
         
         # Summary Cards Frame
@@ -65,10 +66,10 @@ class StatsView(ctk.CTkFrame):
         tag_data = get_tag_distribution(self.current_user['id'])
         
         # Draw Summary Cards
-        self.cards_frame.grid_columnconfigure((0, 1, 2, 3), weight=1)
+        from config import FONT_SIZE
         self.create_card(self.cards_frame, 0, get_text("total_focus"), f"{stats['total_minutes']} min")
         self.create_card(self.cards_frame, 1, get_text("best_day"), stats['best_day'])
-        self.create_card(self.cards_frame, 2, get_text("average"), f"{stats['average_per_day']} min/kun")
+        self.create_card(self.cards_frame, 2, get_text("average"), f"{stats['average_per_day']} {get_text('min_per_day')}")
         self.create_card(self.cards_frame, 3, get_text("ai_recommendation"), best_time)
         
         # Gamification Frame & Actions
@@ -107,11 +108,12 @@ class StatsView(ctk.CTkFrame):
         b3.pack(side="left", expand=True)
         
     def create_card(self, parent, col, title, value):
+        from config import FONT_SIZE
         card = ctk.CTkFrame(parent, corner_radius=10, fg_color="#2D2D2D")
         card.grid(row=0, column=col, padx=10, sticky="ew")
         
-        ctk.CTkLabel(card, text=title, font=ctk.CTkFont(size=14), text_color="gray").pack(pady=(15, 5))
-        ctk.CTkLabel(card, text=value, font=ctk.CTkFont(size=22, weight="bold"), text_color="#BB86FC").pack(pady=(0, 15))
+        ctk.CTkLabel(card, text=title, font=ctk.CTkFont(size=FONT_SIZE), text_color="gray").pack(pady=(15, 5))
+        ctk.CTkLabel(card, text=value, font=ctk.CTkFont(size=FONT_SIZE + 8, weight="bold"), text_color="#BB86FC").pack(pady=(0, 15))
 
     def draw_chart(self, weekly_data):
         if not weekly_data:
@@ -209,7 +211,7 @@ class StatsView(ctk.CTkFrame):
             messagebox.showinfo("Export", get_text("export_empty"))
             return
             
-        filepath = filedialog.asksaveasfilename(defaultextension=".csv", title="Hisobotni Saqlash", filetypes=[("CSV Fayllari", "*.csv")])
+        filepath = filedialog.asksaveasfilename(defaultextension=".csv", title=get_text("save_report"), filetypes=[(get_text("csv_files"), "*.csv")])
         if not filepath:
             return
             

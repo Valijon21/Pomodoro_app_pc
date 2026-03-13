@@ -11,10 +11,10 @@
 *   **Customizable Pomodoro Timer**: Tailor your deep work (25 min default), short breaks (5 min), and long breaks (15 min) to your exact workflow.
 *   **Unbreakable Focus Blocker (V3)**: Enter distraction sites (e.g., `youtube.com`, `kun.uz`). The app intelligently scans the active browser's **Address Bar (URL)** using `uiautomation` to instantly close distraction tabs (`Ctrl + W`) regardless of their article or window titles. Seamlessly brings your Pomodoro timer back to Fullscreen.
 *   **Task Management (To-Do)**: Add, edit, prioritize (High/Medium/Low), and tag tasks. Earn Experience Points (XP) and level up as you complete them!
-*   **Multi-Language Support**: Fully localized in **Uzbek (UZ)**, **Russian (RU)**, and **English (EN)**. Change languages on the fly without breaking the layout.
-*   **Auto-Login & Local Database**: Secure local SQLite database (`pomodoro.db`) with password hashing. Enjoy seamless Auto-Login via encrypted session tokens.
+*   **Multi-Language Support**: Fully localized in **Uzbek (UZ)**, **Russian (RU)**, and **English (EN)** with professional corrections.
+*   **Adjustable Font Size**: Globally scale the UI text size (10px to 24px) for perfect readability on any monitor.
 *   **Detailed Analytics**: Visual charts (via Matplotlib) track your daily/weekly focus minutes, best working hours, and tag distribution.
-*   **Lo-Fi Audio Player**: Built-in ambient Lo-Fi player to keep you in the flow zone.
+*   **Lo-Fi Audio Player**: Built-in ambient Lo-Fi player (with Dashboard toggle) to keep you in the flow zone.
 
 ## 🛠️ Technology Stack
 

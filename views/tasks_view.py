@@ -1,7 +1,7 @@
 import customtkinter as ctk
 from tkinter import messagebox
 from database import add_task, get_tasks, update_task_status, increment_task_pomodoro
-from config import get_text
+from config import get_text, FONT_SIZE, logger
 
 class TasksView(ctk.CTkFrame):
     def __init__(self, master, current_user, on_task_select):
@@ -18,9 +18,9 @@ class TasksView(ctk.CTkFrame):
         self.header_frame = ctk.CTkFrame(self, fg_color="transparent")
         self.header_frame.grid(row=0, column=0, sticky="ew", pady=(15, 5), padx=15)
         
-        ctk.CTkLabel(self.header_frame, text=get_text("tasks_title"), font=ctk.CTkFont(size=20, weight="bold")).pack(side="left")
+        ctk.CTkLabel(self.header_frame, text=get_text("tasks_title"), font=ctk.CTkFont(size=FONT_SIZE + 6, weight="bold")).pack(side="left")
         
-        self.add_btn = ctk.CTkButton(self.header_frame, text=get_text("add_btn"), width=100, command=self.show_add_task_dialog)
+        self.add_btn = ctk.CTkButton(self.header_frame, text=get_text("add_btn"), width=100, font=ctk.CTkFont(size=FONT_SIZE), command=self.show_add_task_dialog)
         self.add_btn.pack(side="right")
         
         # Scrollable Tasks List
@@ -55,7 +55,7 @@ class TasksView(ctk.CTkFrame):
         task_frame.pack(fill="x", pady=6, padx=5)
         
         # Title
-        title_font = ctk.CTkFont(size=14, overstrike=(task['status'] == "Done"))
+        title_font = ctk.CTkFont(size=FONT_SIZE, overstrike=(task['status'] == "Done"))
         title_label = ctk.CTkLabel(task_frame, text=task['title'], font=title_font)
         title_label.pack(side="left", padx=(15, 10), pady=12)
         
@@ -72,7 +72,7 @@ class TasksView(ctk.CTkFrame):
         ctk.CTkLabel(task_frame, text=f" {translated_tag} ", font=ctk.CTkFont(size=11), fg_color="#333333", text_color="#A0A0A0", corner_radius=4).pack(side="left", padx=5)
         
         # Info Badges
-        pomo_label = ctk.CTkLabel(task_frame, text=f"🍅 {task['pomodoro_count']}", font=ctk.CTkFont(size=12, weight="bold"))
+        pomo_label = ctk.CTkLabel(task_frame, text=f"🍅 {task['pomodoro_count']}", font=ctk.CTkFont(size=FONT_SIZE - 2, weight="bold"))
         pomo_label.pack(side="left", padx=10)
         
         # Buttons
@@ -89,28 +89,28 @@ class TasksView(ctk.CTkFrame):
     def show_add_task_dialog(self):
         dialog = ctk.CTkToplevel(self)
         dialog.title(get_text("new_task"))
-        dialog.geometry("400x300")
+        dialog.geometry("400x480")
         dialog.attributes('-topmost', True)
         
         dialog.update_idletasks()
         x = self.winfo_rootx() + (self.winfo_width() // 2) - 200
-        y = self.winfo_rooty() + (self.winfo_height() // 2) - 150
+        y = self.winfo_rooty() + (self.winfo_height() // 2) - 240
         dialog.geometry(f"+{x}+{y}")
         
-        ctk.CTkLabel(dialog, text=get_text("task_name"), font=ctk.CTkFont(weight="bold")).pack(pady=(20, 5))
-        title_entry = ctk.CTkEntry(dialog, width=300)
+        ctk.CTkLabel(dialog, text=get_text("task_name"), font=ctk.CTkFont(size=FONT_SIZE, weight="bold")).pack(pady=(20, 5))
+        title_entry = ctk.CTkEntry(dialog, width=300, font=ctk.CTkFont(size=FONT_SIZE))
         title_entry.pack(pady=5)
         
-        ctk.CTkLabel(dialog, text=get_text("priority"), font=ctk.CTkFont(weight="bold")).pack(pady=(15, 5))
+        ctk.CTkLabel(dialog, text=get_text("priority"), font=ctk.CTkFont(size=FONT_SIZE, weight="bold")).pack(pady=(15, 5))
         priority_var = ctk.StringVar(value="Medium")
         pri_frame = ctk.CTkFrame(dialog, fg_color="transparent")
         pri_frame.pack()
         
-        ctk.CTkRadioButton(pri_frame, text=get_text("pri_high"), variable=priority_var, value="High").pack(side="left", padx=10)
-        ctk.CTkRadioButton(pri_frame, text=get_text("pri_medium"), variable=priority_var, value="Medium").pack(side="left", padx=10)
-        ctk.CTkRadioButton(pri_frame, text=get_text("pri_low"), variable=priority_var, value="Low").pack(side="left", padx=10)
+        ctk.CTkRadioButton(pri_frame, text=get_text("pri_high"), variable=priority_var, value="High", font=ctk.CTkFont(size=FONT_SIZE - 2)).pack(side="left", padx=10)
+        ctk.CTkRadioButton(pri_frame, text=get_text("pri_medium"), variable=priority_var, value="Medium", font=ctk.CTkFont(size=FONT_SIZE - 2)).pack(side="left", padx=10)
+        ctk.CTkRadioButton(pri_frame, text=get_text("pri_low"), variable=priority_var, value="Low", font=ctk.CTkFont(size=FONT_SIZE - 2)).pack(side="left", padx=10)
         
-        ctk.CTkLabel(dialog, text=get_text("tag"), font=ctk.CTkFont(weight="bold")).pack(pady=(15, 5))
+        ctk.CTkLabel(dialog, text=get_text("tag"), font=ctk.CTkFont(size=FONT_SIZE, weight="bold")).pack(pady=(15, 5))
         # Keep internal values English to avoid DB sync issues, only display translated
         # But CTkOptionMenu uses the same string for display and value.
         # We'll map UI values to internal tags before saving.
@@ -129,14 +129,22 @@ class TasksView(ctk.CTkFrame):
             prior = priority_var.get()
             ui_tag = tag_var.get()
             tag = tags_map.get(ui_tag, "General")
+            logger.info(f"Yangi vazifa saqlashga urinish: {title}, priority: {prior}, tag: {tag}")
             if not title:
+                logger.warning("Vazifa nomi bo'sh!")
                 messagebox.showwarning(get_text("error"), get_text("error_name"), parent=dialog)
                 return
-            add_task(self.current_user['id'], title, prior, tag)
+            try:
+                add_task(self.current_user['id'], title, prior, tag)
+                logger.info("Vazifa muvaffaqiyatli saqlandi.")
+            except Exception as e:
+                logger.error(f"Vazifa saqlashda xato: {e}")
+                messagebox.showerror(get_text("error"), f"DB Error: {e}")
+                return
             self.refresh_tasks()
             dialog.destroy()
             
-        ctk.CTkButton(dialog, text=get_text("save_task"), command=save_task).pack(pady=30)
+        ctk.CTkButton(dialog, text=get_text("save_task"), font=ctk.CTkFont(size=FONT_SIZE), command=save_task).pack(pady=30)
 
     def mark_done(self, task_id):
         update_task_status(task_id, "Done", self.current_user['id'])
