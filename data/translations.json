@@ -97,7 +97,10 @@
         "font_size_label": "Shrift Hajmi:",
         "min_per_day": "min/kun",
         "save_report": "Hisobotni Saqlash",
-        "csv_files": "CSV Fayllari"
+        "csv_files": "CSV Fayllari",
+        "select_music_btn": "🎵 Musiqa Tanlash",
+        "current_music_label": "Tanlangan:",
+        "music_files": "Musiqa fayllari"
     },
     "ru": {
         "login_title": "🍅 Pomodoro Pro",
@@ -197,7 +200,10 @@
         "font_size_label": "Размер шрифта:",
         "min_per_day": "мин/день",
         "save_report": "Сохранить отчет",
-        "csv_files": "Файлы CSV"
+        "csv_files": "Файлы CSV",
+        "select_music_btn": "🎵 Выбрать музыку",
+        "current_music_label": "Выбрано:",
+        "music_files": "Музыкальные файлы"
     },
     "en": {
         "login_title": "🍅 Pomodoro Pro",
@@ -297,6 +303,9 @@
         "font_size_label": "Font Size:",
         "min_per_day": "min/day",
         "save_report": "Save Report",
-        "csv_files": "CSV Files"
+        "csv_files": "CSV Files",
+        "select_music_btn": "🎵 Select Music",
+        "current_music_label": "Selected:",
+        "music_files": "Music Files"
     }
 }

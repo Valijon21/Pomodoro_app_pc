@@ -14,20 +14,24 @@ except Exception as e:
     logger.warning(f"Pygame mixer ishga tushmadi: {e}")
     _mixer_ready = False
 
-def play_lofi():
-    """Play the background lofi music on a loop if file exists."""
+def play_lofi(custom_path=None):
+    """Play background music. If custom_path is provided, play that file on a loop."""
     if not _mixer_ready:
         return
-    if not os.path.exists(LOFI_FILE):
-        logger.info("Lo-Fi fayl topilmadi. assets/sounds/lofi_bg.mp3 faylini o'zingiz qo'ying.")
+    
+    music_file = custom_path if custom_path and os.path.exists(custom_path) else LOFI_FILE
+    
+    if not os.path.exists(music_file):
+        logger.warning(f"Musiqa fayli topilmadi: {music_file}")
         return
+        
     try:
-        pygame.mixer.music.load(LOFI_FILE)
+        pygame.mixer.music.load(music_file)
         pygame.mixer.music.set_volume(0.3)
         pygame.mixer.music.play(-1)  # Loop indefinitely
-        logger.info("Lo-Fi musiqa boshlandi")
+        logger.info(f"Musiqa boshlandi: {os.path.basename(music_file)}")
     except Exception as e:
-        logger.error("Lo-Fi play qilishda xatolik", exc_info=True)
+        logger.error(f"Musiqa ijro etishda xatolik ({music_file}): {e}")
 
 def stop_lofi():
     """Stop the background music."""

@@ -93,7 +93,7 @@ class TimerView(ctk.CTkFrame):
         # Immediate audio action if running
         if self.is_running and not self.is_break:
             if val:
-                audio.play_lofi()
+                audio.play_lofi(self.settings.get("custom_music_path"))
             else:
                 audio.stop_lofi()
         elif not self.is_running:
@@ -135,7 +135,7 @@ class TimerView(ctk.CTkFrame):
                 
                 # Turn on Strict Focus & Audio
                 if self.settings.get("play_lofi", False):
-                    audio.play_lofi()
+                    audio.play_lofi(self.settings.get("custom_music_path"))
                 blocked_sites = self.settings.get("blocked_sites", "")
                 if blocked_sites:
                     blocker.block_websites(blocked_sites)

@@ -1,7 +1,7 @@
 import customtkinter as ctk
 import json
 import os
-from tkinter import messagebox
+from tkinter import filedialog, messagebox
 from config import DATA_DIR, logger, get_text, FONT_SIZE
 
 class SettingsView(ctk.CTkFrame):
@@ -27,6 +27,7 @@ class SettingsView(ctk.CTkFrame):
         self.long_break_var = ctk.StringVar(value=str(self.settings.get("long_break", 15)))
         self.cycles_var = ctk.StringVar(value=str(self.settings.get("cycles_before_long_break", 4)))
         self.font_size_var = ctk.IntVar(value=self.settings.get("font_size", 14))
+        self.music_path_var = ctk.StringVar(value=self.settings.get("custom_music_path", ""))
         
         self.create_input(self.form_frame, 0, get_text("work_time"), self.work_time_var)
         self.create_input(self.form_frame, 1, get_text("short_break"), self.short_break_var)
@@ -54,21 +55,44 @@ class SettingsView(ctk.CTkFrame):
         self.lofi_switch = ctk.CTkSwitch(self.form_frame, text=get_text("lofi"), variable=self.lofi_var, font=ctk.CTkFont(size=FONT_SIZE))
         self.lofi_switch.grid(row=6, column=1, pady=10, padx=20, sticky="w")
         
+        # Custom Music Picker
+        self.music_btn = ctk.CTkButton(self.form_frame, text=get_text("select_music_btn"), font=ctk.CTkFont(size=FONT_SIZE-2), command=self.select_custom_music, width=150)
+        self.music_btn.grid(row=7, column=0, pady=5, padx=10, sticky="w")
+        
+        self.music_label = ctk.CTkLabel(self.form_frame, text=self.get_music_display_text(), font=ctk.CTkFont(size=FONT_SIZE-4), text_color="gray")
+        self.music_label.grid(row=7, column=1, pady=5, padx=10, sticky="w")
+        
         # Blocked Sites Input
-        ctk.CTkLabel(self.form_frame, text=get_text("blocked_sites_label"), font=ctk.CTkFont(size=FONT_SIZE, weight="bold")).grid(row=7, column=0, columnspan=2, pady=(20, 5), sticky="w")
+        ctk.CTkLabel(self.form_frame, text=get_text("blocked_sites_label"), font=ctk.CTkFont(size=FONT_SIZE, weight="bold")).grid(row=8, column=0, columnspan=2, pady=(20, 5), sticky="w")
         self.blocked_sites_var = ctk.StringVar(value=self.settings.get("blocked_sites", "youtube.com, instagram.com, tiktok.com"))
         self.blocked_sites_entry = ctk.CTkEntry(self.form_frame, textvariable=self.blocked_sites_var, width=400, font=ctk.CTkFont(size=FONT_SIZE))
-        self.blocked_sites_entry.grid(row=8, column=0, columnspan=2, pady=5, sticky="w", ipadx=5)
+        self.blocked_sites_entry.grid(row=9, column=0, columnspan=2, pady=5, sticky="w", ipadx=5)
         
         # Language Selector
-        ctk.CTkLabel(self.form_frame, text=get_text("language_label"), font=ctk.CTkFont(size=FONT_SIZE, weight="bold")).grid(row=9, column=0, pady=(20, 5), sticky="w")
+        ctk.CTkLabel(self.form_frame, text=get_text("language_label"), font=ctk.CTkFont(size=FONT_SIZE, weight="bold")).grid(row=10, column=0, pady=(20, 5), sticky="w")
         self.lang_var = ctk.StringVar(value=self.settings.get("language", "uz"))
         self.lang_menu = ctk.CTkOptionMenu(self.form_frame, variable=self.lang_var, values=["uz", "ru", "en"], width=100, font=ctk.CTkFont(size=FONT_SIZE))
-        self.lang_menu.grid(row=9, column=1, pady=(20, 5), sticky="w")
+        self.lang_menu.grid(row=10, column=1, pady=(20, 5), sticky="w")
         
         # Save Button
         self.save_btn = ctk.CTkButton(self.form_frame, text=get_text("save_btn"), font=ctk.CTkFont(size=FONT_SIZE, weight="bold"), fg_color="#03DAC6", text_color="black", hover_color="#018786", command=self.save_settings)
-        self.save_btn.grid(row=10, column=0, columnspan=2, pady=40, ipadx=30, ipady=8)
+        self.save_btn.grid(row=11, column=0, columnspan=2, pady=40, ipadx=30, ipady=8)
+
+    def select_custom_music(self):
+        file_path = filedialog.askopenfilename(
+            title=get_text("select_music_btn"),
+            filetypes=[(get_text("music_files"), "*.mp3 *.wav")]
+        )
+        if file_path:
+            self.music_path_var.set(file_path)
+            self.music_label.configure(text=self.get_music_display_text())
+            logger.info(f"Yangi musiqa tanlandi: {file_path}")
+
+    def get_music_display_text(self):
+        path = self.music_path_var.get()
+        if not path:
+            return "Standard Lo-Fi"
+        return f"{get_text('current_music_label')} {os.path.basename(path)}"
 
     def create_input(self, parent, row, label_text, var):
         ctk.CTkLabel(parent, text=label_text, font=ctk.CTkFont(size=FONT_SIZE, weight="bold")).grid(row=row, column=0, sticky="w", pady=15, padx=10)
@@ -108,7 +132,8 @@ class SettingsView(ctk.CTkFrame):
                 "play_lofi": self.lofi_var.get(),
                 "blocked_sites": self.blocked_sites_var.get(),
                 "language": self.lang_var.get(),
-                "font_size": int(self.font_size_var.get())
+                "font_size": int(self.font_size_var.get()),
+                "custom_music_path": self.music_path_var.get()
             }
             with open(self.settings_file, "w") as f:
                 json.dump(new_settings, f, indent=4)
