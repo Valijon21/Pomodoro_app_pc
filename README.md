@@ -13,8 +13,8 @@
 *   **Task Management (To-Do)**: Add, edit, prioritize (High/Medium/Low), and tag tasks. Earn Experience Points (XP) and level up as you complete them!
 *   **Multi-Language Support**: Fully localized in **Uzbek (UZ)**, **Russian (RU)**, and **English (EN)** with professional corrections.
 *   **Adjustable Font Size**: Globally scale the UI text size (10px to 24px) for perfect readability on any monitor.
-*   **Detailed Analytics**: Visual charts (via Matplotlib) track your daily/weekly focus minutes, best working hours, and tag distribution.
-*   **Lo-Fi Audio Player**: Built-in ambient Lo-Fi player (with Dashboard toggle) to keep you in the flow zone.
+*   **Analytics & AI**: Visual charts track focus minutes and best working hours, plus AI-powered productivity recommendations.
+*   **Lo-Fi & Custom Music**: Built-in ambient Lo-Fi player or **select your own MP3 files** for a personalized flow state.
 
 ## 🛠️ Technology Stack
 

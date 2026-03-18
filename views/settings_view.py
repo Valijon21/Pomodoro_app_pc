@@ -11,15 +11,20 @@ class SettingsView(ctk.CTkFrame):
         self.settings_file = os.path.join(DATA_DIR, 'settings.json')
         self.settings = self.load_settings()
         
-        self.grid_columnconfigure(0, weight=1)
-        
-        # Header
+        # Header (Fixed at top)
         self.header_label = ctk.CTkLabel(self, text=get_text("settings_title"), font=ctk.CTkFont(size=24, weight="bold"))
-        self.header_label.grid(row=0, column=0, pady=(20, 20))
+        self.header_label.pack(pady=(20, 10))
         
-        # Form Container
-        self.form_frame = ctk.CTkFrame(self, fg_color="transparent")
-        self.form_frame.grid(row=1, column=0, pady=10)
+        # Use a Scrollable Frame for the form to prevent clipping
+        self.scroll_frame = ctk.CTkScrollableFrame(self, fg_color="transparent")
+        self.scroll_frame.pack(fill="both", expand=True, padx=10, pady=10)
+        self.scroll_frame.grid_columnconfigure(0, weight=1)
+
+        # Form Container inside scrollable frame
+        self.form_frame = ctk.CTkFrame(self.scroll_frame, fg_color="transparent")
+        self.form_frame.pack(fill="both", expand=True, padx=20)
+        self.form_frame.grid_columnconfigure(0, weight=1)
+        self.form_frame.grid_columnconfigure(1, weight=1)
         
         # Time Settings
         self.work_time_var = ctk.StringVar(value=str(self.settings.get("work_time", 25)))
@@ -35,10 +40,10 @@ class SettingsView(ctk.CTkFrame):
         self.create_input(self.form_frame, 3, get_text("cycles"), self.cycles_var)
         
         # Font Size Slider
-        ctk.CTkLabel(self.form_frame, text=get_text("font_size_label"), font=ctk.CTkFont(weight="bold")).grid(row=4, column=0, sticky="w", pady=10, padx=10)
+        ctk.CTkLabel(self.form_frame, text=get_text("font_size_label"), font=ctk.CTkFont(size=FONT_SIZE, weight="bold")).grid(row=4, column=0, sticky="w", pady=10, padx=10)
         self.font_slider = ctk.CTkSlider(self.form_frame, from_=10, to=24, number_of_steps=14, variable=self.font_size_var)
         self.font_slider.grid(row=4, column=1, sticky="w", pady=10, padx=10)
-        self.font_size_label_val = ctk.CTkLabel(self.form_frame, textvariable=self.font_size_var)
+        self.font_size_label_val = ctk.CTkLabel(self.form_frame, textvariable=self.font_size_var, font=ctk.CTkFont(size=FONT_SIZE))
         self.font_size_label_val.grid(row=4, column=1, sticky="e", padx=(0, 0))
         
         # Toggles
@@ -46,7 +51,7 @@ class SettingsView(ctk.CTkFrame):
         self.auto_break_var = ctk.BooleanVar(value=self.settings.get("auto_start_break", False))
         self.lofi_var = ctk.BooleanVar(value=self.settings.get("play_lofi", False))
         
-        self.sound_switch = ctk.CTkSwitch(self.form_frame, text=get_text("sound"), variable=self.sound_var)
+        self.sound_switch = ctk.CTkSwitch(self.form_frame, text=get_text("sound"), variable=self.sound_var, font=ctk.CTkFont(size=FONT_SIZE))
         self.sound_switch.grid(row=5, column=0, pady=15, sticky="w")
         
         self.auto_break_switch = ctk.CTkSwitch(self.form_frame, text=get_text("auto_break"), variable=self.auto_break_var, font=ctk.CTkFont(size=FONT_SIZE))
@@ -55,12 +60,15 @@ class SettingsView(ctk.CTkFrame):
         self.lofi_switch = ctk.CTkSwitch(self.form_frame, text=get_text("lofi"), variable=self.lofi_var, font=ctk.CTkFont(size=FONT_SIZE))
         self.lofi_switch.grid(row=6, column=1, pady=10, padx=20, sticky="w")
         
-        # Custom Music Picker
-        self.music_btn = ctk.CTkButton(self.form_frame, text=get_text("select_music_btn"), font=ctk.CTkFont(size=FONT_SIZE-2), command=self.select_custom_music, width=150)
-        self.music_btn.grid(row=7, column=0, pady=5, padx=10, sticky="w")
+        # Custom Music Picker (grouped with Lo-Fi)
+        music_frame = ctk.CTkFrame(self.form_frame, fg_color="gray20" if ctk.get_appearance_mode()=="Dark" else "gray90")
+        music_frame.grid(row=7, column=0, columnspan=2, pady=10, padx=10, sticky="ew")
         
-        self.music_label = ctk.CTkLabel(self.form_frame, text=self.get_music_display_text(), font=ctk.CTkFont(size=FONT_SIZE-4), text_color="gray")
-        self.music_label.grid(row=7, column=1, pady=5, padx=10, sticky="w")
+        self.music_btn = ctk.CTkButton(music_frame, text=get_text("select_music_btn"), font=ctk.CTkFont(size=FONT_SIZE, weight="bold"), command=self.select_custom_music, width=200)
+        self.music_btn.pack(side="left", padx=10, pady=10)
+        
+        self.music_label = ctk.CTkLabel(music_frame, text=self.get_music_display_text(), font=ctk.CTkFont(size=FONT_SIZE-2), text_color="#BB86FC" if ctk.get_appearance_mode()=="Dark" else "#6200EE")
+        self.music_label.pack(side="left", padx=10, pady=10)
         
         # Blocked Sites Input
         ctk.CTkLabel(self.form_frame, text=get_text("blocked_sites_label"), font=ctk.CTkFont(size=FONT_SIZE, weight="bold")).grid(row=8, column=0, columnspan=2, pady=(20, 5), sticky="w")
