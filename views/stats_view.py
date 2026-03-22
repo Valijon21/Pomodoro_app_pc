@@ -6,7 +6,9 @@ from config import get_text
 from tkcalendar import Calendar
 import datetime
 import csv
+import re
 from tkinter import filedialog, messagebox
+from matplotlib.figure import Figure
 
 class StatsView(ctk.CTkFrame):
     def __init__(self, master, current_user):
@@ -54,10 +56,14 @@ class StatsView(ctk.CTkFrame):
             child.destroy()
         for child in self.chart_frame.winfo_children():
             child.destroy()
-        for child in getattr(self, 'pie_frame', ctk.CTkFrame(self)).winfo_children():
-            child.destroy()
+        if hasattr(self, 'pie_frame'):
+            for child in self.pie_frame.winfo_children():
+                child.destroy()
         for child in self.cal_frame.winfo_children():
             child.destroy()
+            
+        # Close all existing matplotlib figures to prevent memory leaks and WNDPROC errors
+        plt.close('all')
             
         from database import get_best_working_hours, get_tag_distribution
         stats = get_overall_stats(self.current_user['id'])
@@ -124,8 +130,9 @@ class StatsView(ctk.CTkFrame):
         minutes = [d['minutes'] for d in weekly_data]
         
         # Create matplotlib figure using dark theme friendly colors
-        fig, ax = plt.subplots(figsize=(6, 4))
-        fig.patch.set_facecolor('#2D2D2D')
+        # Use Figure(OO API) instead of plt.subplots to be more professional and avoid global state issues
+        fig = Figure(figsize=(6, 4), dpi=100, facecolor='#2D2D2D')
+        ax = fig.add_subplot(111)
         ax.set_facecolor('#2D2D2D')
         
         ax.plot(dates, minutes, marker='o', color='#03DAC6', linewidth=2, markersize=8)
@@ -164,12 +171,18 @@ class StatsView(ctk.CTkFrame):
             k = m.get(t)
             return get_text(k) if k else t
 
-        labels = [trans_tag(k) for k in tag_data.keys()]
+        def strip_emojis(text):
+            """Remove emojis from text to avoid Matplotlib glyph warnings."""
+            if not text: return ""
+            # Professional way to strip characters outside Basic Multilingual Plane (which emojis are)
+            return "".join(c for c in text if ord(c) < 0x10000).strip()
+
+        labels = [strip_emojis(trans_tag(k)) for k in tag_data.keys()]
         sizes = list(tag_data.values())
         colors = ['#03DAC6', '#BB86FC', '#CF6679', '#FFB300', '#4CAF50', '#2196F3']
         
-        fig, ax = plt.subplots(figsize=(4, 4))
-        fig.patch.set_facecolor('#2D2D2D')
+        fig = Figure(figsize=(4, 4), dpi=100, facecolor='#2D2D2D')
+        ax = fig.add_subplot(111)
         
         wedges, texts, autotexts = ax.pie(sizes, labels=labels, autopct='%1.0f%%', 
                                           startangle=140, colors=colors, textprops={'color':"w"})

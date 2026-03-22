@@ -102,7 +102,8 @@ class PomodoroApp(ctk.CTk):
         
         user_info = f"👤 {self.current_user['username']}  |  🏆 {get_text('level')}: {self.current_user['level']}  |  ⚡ {get_text('xp')}: {self.current_user['xp']}"
         from config import FONT_SIZE
-        ctk.CTkLabel(header, text=user_info, font=ctk.CTkFont(size=FONT_SIZE + 2, weight="bold")).pack(side="left", padx=20, pady=10)
+        self.header_user_label = ctk.CTkLabel(header, text=user_info, font=ctk.CTkFont(size=FONT_SIZE + 2, weight="bold"))
+        self.header_user_label.pack(side="left", padx=20, pady=10)
         
         def do_logout():
             from database import clear_session
@@ -208,8 +209,13 @@ class PomodoroApp(ctk.CTk):
                 self.current_user['level'] = res[0]
                 self.current_user['xp'] = res[1]
                 
-            # Refresh header & stats
-            self.show_main_app()
+            # Refresh header dynamically without destroying UI
+            if hasattr(self, 'header_user_label') and self.header_user_label.winfo_exists():
+                self.header_user_label.configure(text=f"👤 {self.current_user['username']}  |  🏆 {get_text('level')}: {self.current_user['level']}  |  ⚡ {get_text('xp')}: {self.current_user['xp']}")
+                
+            # Refresh stats without recreating the stats view manually
+            if hasattr(self, 'stats_view') and self.stats_view.winfo_exists():
+                self.stats_view.refresh_stats()
             
             # Load motivational quote
             try:

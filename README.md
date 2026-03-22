@@ -8,12 +8,13 @@
 
 ## 🚀 Key Features
 
-*   **Customizable Pomodoro Timer**: Tailor your deep work (25 min default), short breaks (5 min), and long breaks (15 min) to your exact workflow.
+*   **Customizable Pomodoro Flow**: Tailor your deep work (25 min default), short breaks (5 min), and long breaks (15 min) to your exact workflow. Features an **Interactive Flow** with confirmation dialogs (Yes/No) between sessions to prevent accidental transitions.
+*   **Session State Persistence**: Automatically saves your active cycle, current mode, and active task. Safely close the app and resume exactly where you left off.
 *   **Unbreakable Focus Blocker (V3)**: Enter distraction sites (e.g., `youtube.com`, `kun.uz`). The app intelligently scans the active browser's **Address Bar (URL)** using `uiautomation` to instantly close distraction tabs (`Ctrl + W`) regardless of their article or window titles. Seamlessly brings your Pomodoro timer back to Fullscreen.
 *   **Task Management (To-Do)**: Add, edit, prioritize (High/Medium/Low), and tag tasks. Earn Experience Points (XP) and level up as you complete them!
 *   **Multi-Language Support**: Fully localized in **Uzbek (UZ)**, **Russian (RU)**, and **English (EN)** with professional corrections.
 *   **Adjustable Font Size**: Globally scale the UI text size (10px to 24px) for perfect readability on any monitor.
-*   **Analytics & AI**: Visual charts track focus minutes and best working hours, plus AI-powered productivity recommendations.
+*   **Analytics & AI**: Visual charts track focus minutes and best working hours, plus AI-powered productivity recommendations. Optimized with Object-Oriented Matplotlib rendering to prevent memory leaks and ensure stable performance over time.
 *   **Lo-Fi & Custom Music**: Built-in ambient Lo-Fi player or **select your own MP3 files** for a personalized flow state.
 
 ## 🛠️ Technology Stack

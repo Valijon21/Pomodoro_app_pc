@@ -66,6 +66,18 @@ def init_db():
         )
     ''')
     
+    # Create Timer State table for Persistence
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS timer_state (
+            user_id INTEGER PRIMARY KEY,
+            task_id INTEGER,
+            cycle_count INTEGER DEFAULT 0,
+            mode TEXT DEFAULT 'work',
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+            FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE SET NULL
+        )
+    ''')
+    
     conn.commit()
     conn.close()
 
@@ -156,6 +168,27 @@ def add_session(user_id: int, task_id: Optional[int], duration: int, focus_perce
     """, (user_id, task_id, duration, focus_percent))
     conn.commit()
     conn.close()
+
+def save_timer_state(user_id: int, task_id: Optional[int], cycle_count: int, mode: str):
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        INSERT OR REPLACE INTO timer_state (user_id, task_id, cycle_count, mode)
+        VALUES (?, ?, ?, ?)
+    """, (user_id, task_id, cycle_count, mode))
+    conn.commit()
+    conn.close()
+
+def get_timer_state(user_id: int) -> Optional[Dict]:
+    conn = get_connection()
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM timer_state WHERE user_id = ?", (user_id,))
+    state = cursor.fetchone()
+    conn.close()
+    if state:
+        return dict(state)
+    return None
 
 # Initialize if run directly
 if __name__ == "__main__":

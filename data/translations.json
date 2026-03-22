@@ -100,7 +100,11 @@
         "csv_files": "CSV Fayllari",
         "select_music_btn": "🎵 Musiqa Tanlash",
         "current_music_label": "Tanlangan:",
-        "music_files": "Musiqa fayllari"
+        "music_files": "Musiqa fayllari",
+        "ask_resume_state": "Sizda avvalgi tugallanmagan sessiya bor ({cycle}-sikl). Uni davom ettirishni xohlaysizmi?",
+        "ask_start_break_short": "Ajoyib! {minutes} daqiqa qisqa tanaffus qilishni xohlaysizmi?",
+        "ask_start_break_long": "Super! {minutes} daqiqa katta tanaffus qilishni xohlaysizmi?",
+        "ask_start_work": "Dam olib bo'ldingizmi? {cycle}-sikl pomodoroni boshlaymizmi?"
     },
     "ru": {
         "login_title": "🍅 Pomodoro Pro",
@@ -203,7 +207,11 @@
         "csv_files": "Файлы CSV",
         "select_music_btn": "🎵 Выбрать музыку",
         "current_music_label": "Выбрано:",
-        "music_files": "Музыкальные файлы"
+        "music_files": "Музыкальные файлы",
+        "ask_resume_state": "У вас есть незаконченная сессия ({cycle}-й цикл). Хотите продолжить?",
+        "ask_start_break_short": "Отлично! Хотите сделать короткий перерыв на {minutes} минут?",
+        "ask_start_break_long": "Супер! Хотите сделать длинный перерыв на {minutes} минут?",
+        "ask_start_work": "Отдохнули? Начинаем {cycle}-й цикл помодоро?"
     },
     "en": {
         "login_title": "🍅 Pomodoro Pro",
@@ -306,6 +314,10 @@
         "csv_files": "CSV Files",
         "select_music_btn": "🎵 Select Music",
         "current_music_label": "Selected:",
-        "music_files": "Music Files"
+        "music_files": "Music Files",
+        "ask_resume_state": "You have an unfinished session (Cycle {cycle}). Do you want to resume?",
+        "ask_start_break_short": "Great job! Do you want to take a {minutes}-minute short break?",
+        "ask_start_break_long": "Awesome! Do you want to take a {minutes}-minute long break?",
+        "ask_start_work": "Rested? Shall we start Pomodoro cycle {cycle}?"
     }
 }

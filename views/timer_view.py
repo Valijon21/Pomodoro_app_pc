@@ -74,6 +74,48 @@ class TimerView(ctk.CTkFrame):
         self.lofi_dash_switch = ctk.CTkSwitch(self.info_frame, text=get_text("lofi"), variable=self.lofi_var, font=ctk.CTkFont(size=FONT_SIZE - 2), command=self.on_dash_lofi_toggle)
         self.lofi_dash_switch.pack(side="left", padx=10)
         
+        # Check for saved state after startup
+        self.after(500, self.check_saved_state)
+
+    def check_saved_state(self):
+        from database import get_timer_state
+        import tkinter.messagebox as msgbox
+        state = get_timer_state(self.current_user['id'])
+        if state and state.get('cycle_count', 0) > 0:
+            msg_text = get_text("ask_resume_state").format(cycle=state['cycle_count'])
+            ans = msgbox.askyesno("Pomodoro Pro", msg_text, parent=self.winfo_toplevel())
+            if ans:
+                self.pomodoro_cycle_count = state['cycle_count']
+                self.cycle_label.configure(text=f"{get_text('current_cycles')} {self.pomodoro_cycle_count} / {self.settings['cycles_before_long_break']}")
+                mode = state.get('mode', 'work')
+                is_break = (mode != 'work')
+                self.set_mode(mode, is_break)
+                
+                # Fetch and restore the task
+                task_id = state.get('task_id')
+                if task_id:
+                    from database import get_connection
+                    conn = get_connection()
+                    conn.row_factory = __import__('sqlite3').Row
+                    cursor = conn.cursor()
+                    cursor.execute("SELECT * FROM tasks WHERE id = ?", (task_id,))
+                    row = cursor.fetchone()
+                    conn.close()
+                    if row:
+                        self.update_task(dict(row))
+
+    def save_current_state(self, manual_mode=None):
+        from database import save_timer_state
+        task_id = self.current_task['id'] if self.current_task else None
+        
+        mode = 'work'
+        if manual_mode:
+            mode = manual_mode
+        elif self.is_break:
+            mode = 'short' if self.time_left <= self.settings['short_break']*60 else 'long'
+            
+        save_timer_state(self.current_user['id'], task_id, self.pomodoro_cycle_count, mode)
+        
     def on_dash_lofi_toggle(self):
         val = self.lofi_var.get()
         logger.info(f"Dashboard: Musiqa holati o'zgardi: {val}")
@@ -162,6 +204,9 @@ class TimerView(ctk.CTkFrame):
                 self.after_cancel(self.focus_enforcer_id)
 
     def run_timer(self):
+        if not self.winfo_exists():
+            return
+            
         if self.time_left > 0 and self.is_running:
             mins, secs = divmod(self.time_left, 60)
             time_str = f"{mins:02d}:{secs:02d}"
@@ -201,9 +246,15 @@ class TimerView(ctk.CTkFrame):
             if hasattr(self, 'focus_enforcer_id') and self.focus_enforcer_id:
                 self.after_cancel(self.focus_enforcer_id)
             
-            # Smart Cycle Logic
+            # Determine duration of completed session
             duration_minutes = self.settings["work_time"] if not self.is_break else self.settings["short_break"]
+                
+            # Notify completion to master UI (Shows XP Dialog for work sessions)
+            self.on_session_complete(duration_minutes, self.current_task, not self.is_break)
             
+            import tkinter.messagebox as msgbox
+            
+            # Interactive Smart Cycle Logic
             if not self.is_break:
                 self.pomodoro_cycle_count += 1
                 self.cycle_label.configure(text=f"{get_text('current_cycles')} {self.pomodoro_cycle_count} / {self.settings['cycles_before_long_break']}")
@@ -211,18 +262,34 @@ class TimerView(ctk.CTkFrame):
                 # Check if it's time for a Long Break
                 if self.pomodoro_cycle_count >= self.settings["cycles_before_long_break"]:
                     self.pomodoro_cycle_count = 0
-                    self.set_mode('long', True)
+                    msg_text = get_text("ask_start_break_long").format(minutes=self.settings["long_break"])
+                    next_mode = 'long'
                 else:
-                    self.set_mode('short', True)
+                    msg_text = get_text("ask_start_break_short").format(minutes=self.settings["short_break"])
+                    next_mode = 'short'
                     
-                # Auto Start Check
-                if self.settings.get("auto_start_break", False):
+                # Store new mode before prompt
+                self.save_current_state(next_mode)
+                
+                # Ask user
+                ans = msgbox.askyesno(get_text("pomodoro_finished"), msg_text, parent=self.winfo_toplevel())
+                if ans:
+                    self.set_mode(next_mode, True)
                     self.toggle_timer()
-            else:
-                self.set_mode('work', False)
-            
-            # Notify completion to master UI
-            self.on_session_complete(duration_minutes, self.current_task, not self.is_break)
+                else:
+                    self.set_mode(next_mode, True)
+                
+            else: # It was a break session
+                msg_text = get_text("ask_start_work").format(cycle=self.pomodoro_cycle_count + 1)
+                
+                self.save_current_state('work')
+                
+                ans = msgbox.askyesno(get_text("timer_finished"), msg_text, parent=self.winfo_toplevel())
+                if ans:
+                    self.set_mode('work', False)
+                    self.toggle_timer()
+                else:
+                    self.set_mode('work', False)
 
     def _enforce_focus_mode(self):
         if not self.is_running or self.is_break:
@@ -372,6 +439,8 @@ class TimerView(ctk.CTkFrame):
             self.pomodoro_btn.configure(fg_color="transparent", border_width=1)
             self.short_break_btn.configure(fg_color="transparent", border_width=1)
             self.long_break_btn.configure(fg_color=primary_color, border_width=0)
+            
+        self.save_current_state()
 
     def open_mini_widget(self):
         # Hide Main Window
